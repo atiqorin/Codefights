@@ -1,11 +1,11 @@
 class MinimumOnStack {
-    public class MinStack {
+    public static class MinStack {
         public Stack<Integer> stack;
-        public PriorityQueue<Integer> pq;
+        public Stack<Integer> min;
 
         public MinStack() {
             stack = new Stack<Integer>();
-            pq = new PriorityQueue<>();
+            min = new Stack<Integer>();
         }
     }
 
@@ -28,26 +28,19 @@ class MinimumOnStack {
 
     int execute(String cmd, MinStack stack) {
         if (cmd.equals("min")) {
-            return stack.pq.peek();
+            return stack.min.peek();
         } else if (cmd.equals("pop")) {
             int ret = stack.stack.pop();
-            if (stack.pq.peek() == ret) {
-                stack.pq.poll();
-            } else {
-                Stack<Integer> temp = new Stack<>();
-                while (stack.pq.peek() != ret) {
-                    temp.add(stack.pq.poll());
-                }
-                stack.pq.poll();
-                while (!temp.isEmpty()) {
-                    stack.pq.add(temp.pop());
-                }
+            if (stack.min.peek() == ret) {
+                stack.min.pop();
             }
             return ret;
         } else {
             String[] split = cmd.split(" ");
             int num = Integer.parseInt(split[1]);
-            stack.pq.add(num);
+            if (stack.min.size() == 0 || stack.min.peek() > num) {
+                stack.min.add(num);
+            }
             return stack.stack.push(num);
         }
     }

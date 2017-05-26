@@ -1,40 +1,34 @@
 class CountSmallerToTheRight {
+    static int maxN = 20002;
+
     int[] countSmallerToTheRight(int[] nums) {
-        if (nums.length == 0) {
-            return new int[] {};
-        }
-        if (nums.length == 1) {
-            return new int[] { 0 };
-        }
-        int cut = nums.length / 2;
-        int toEnd = nums.length - cut;
-        int[] left = new int[cut];
-        int[] right = new int[toEnd];
-        for (int i = 0; i < cut; i++) {
-            left[i] = nums[i];
-        }
-        for (int i = 0; i < right.length; i++) {
-            right[i] = nums[i + cut];
-        }
-        int[] l = countSmallerToTheRight(left);
-        int[] r = countSmallerToTheRight(right);
-
-        for (int i = l.length - 1; i >= 0; i--) {
-            for (int j = 0; j < r.length; j++) {
-                if (nums[i] > nums[cut + j]) {
-                    l[i] += 1;
-
-                }
-            }
-        }
-        int[] count = new int[nums.length];
-        for (int i = 0; i < l.length; i++) {
-            count[i] = l[i];
-        }
-        for (int i = 0; i < r.length; i++) {
-            count[cut + i] = r[i];
+        int[] BIT = new int[maxN];
+        int[] result = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            nums[i] += maxN / 2;
         }
 
-        return count;
+        for (int i = nums.length - 1; i >= 0; i--) {
+            PushBIT(BIT, nums[i] + 1);
+            result[i] = GetBIT(BIT, nums[i]);
+        }
+
+        return result;
+    }
+
+    void PushBIT(int[] BIT, int i) {
+        if (i < maxN) {
+            BIT[i]++;
+            PushBIT(BIT, i + (i & -i));
+        }
+
+    }
+
+    int GetBIT(int[] BIT, int i) {
+        if (i == 0) {
+            return 0;
+        }
+
+        return BIT[i] + GetBIT(BIT, i - (i & -i));
     }
 }

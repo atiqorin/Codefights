@@ -16,9 +16,6 @@ class MergeTwoLinkedLists {
         ListNode<Integer> head = n;
         ListNode<Integer> prev = n;
         while (l1 != null || l2 != null) {
-            if (n == null) {
-                n = new ListNode<Integer>(0);
-            }
             if (l1 != null && l2 != null) {
                 if (l1.value < l2.value) {
                     n.value = l1.value;

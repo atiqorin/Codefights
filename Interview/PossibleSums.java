@@ -1,37 +1,37 @@
 class PossibleSums {
+    HashSet<Integer> set;
     int possibleSums(int[] coins, int[] quantity) {
-        int max = 0;
-        for (int i = 0; i < coins.length; i++) {
-            for (int j = 0; j < quantity[i]; j++) {
-                max += coins[i];
-            }
+        set = new HashSet<>();
+        int q=0;
+        for(int i: quantity){
+            q+=i;
         }
-        int[] arr = new int[coins.length + 1];
-        for (int i = 0; i < coins.length; i++) {
-            arr[i + 1] = coins[i];
+        for(int i = q; i > 0; i--){
+            solve(coins, quantity, 0, i);
         }
-        int[][] isPossible = new int[coins.length + 1][max + 1];
-        for (int i = 0; i < arr.length; i++) {
-            isPossible[i][0] = 1;
+        
+        return set.size();
+    }
+    void solve(int[] coins, int[] quantity,int i, int q){
+        if(q == 0){
+            set.add(getSum(coins, quantity));
+            return;
+        } else if(i >= coins.length || q < 0){
+            return;
         }
-        for (int i = 1; i < arr.length; i++) {
-            for (int j = 0; j <= max; j++) {
-                for (int k = 0; k <= quantity[i - 1]; k++) {
-                    if (j - k * arr[i] >= 0 && isPossible[i - 1][j - k * arr[i]] == 1) {
-                        isPossible[i][j] = 1;
-                    }
-                }
-            }
+        int[] mod = Arrays.copyOf(quantity, quantity.length);
+        for(int k = 1; mod[i] - k >= 0; k++){
+            mod[i] -= k;
+            solve(coins, mod, i, q - k);
+            mod[i] += k;
         }
-        int ans = 0;
-        for (int j = 1; j <= max; j++) {
-            for (int i = 0; i < arr.length; i++) {
-                if (isPossible[i][j] == 1) {
-                    ans++;
-                    break;
-                }
-            }
+        solve(coins, quantity, i + 1, q);
+    }
+    int getSum(int[] coins, int[] quantity){
+        int sum = 0;
+        for(int i = 0; i < coins.length; i++){
+            sum += coins[i] * quantity[i];
         }
-        return ans;
+        return sum;
     }
 }

@@ -9,37 +9,73 @@ class DeleteFromBST {
     //   Tree<T> left;
     //   Tree<T> right;
     // }
+    static boolean leftNode;
+
     Tree<Integer> deleteFromBST(Tree<Integer> t, int[] queries) {
+        leftNode = false;
         for (int q : queries) {
-            t = deleteNode(t, q);
+            t = deleteNode(t, q, null);
         }
         return t;
     }
 
-    Tree<Integer> deleteNode(Tree<Integer> t, int q) {
+    Tree<Integer> deleteNode(Tree<Integer> t, int q, Tree<Integer> parent) {
         if (t == null) {
             return null;
         }
-        if (q < t.value) {
-            t.left = deleteNode(t.left, q);
-        } else if (q > t.value) {
-            t.right = deleteNode(t.right, q);
-        } else {
-            if (t.left == null) {
-                return t.right;
-            } else if (t.right == null) {
-                return t.left;
+        ArrayList<Tree<Integer>> nodes = findNode(t, q, null, false);
+        if (nodes == null) {
+            return t;
+        }
+        if (nodes.get(0).left == null) {
+            if (nodes.get(1) != null) {
+                if (leftNode) {
+                    nodes.get(1).left = nodes.get(0).right;
+                } else {
+                    nodes.get(1).right = nodes.get(0).right;
+                }
+            } else {
+                t = t.right;
+                return t;
             }
-            t.value = findMax(t.left).value;
-            t.left = deleteNode(t.left, t.value);
+        } else {
+            ArrayList<Tree<Integer>> arr = findMax(nodes.get(0).left, nodes.get(0));
+            if (arr.get(1).value != nodes.get(0).value) {
+                arr.get(1).right = null;
+            } else {
+                arr.get(1).left = arr.get(0).left;
+            }
+            nodes.get(0).value = arr.get(0).value;
         }
         return t;
     }
 
-    Tree<Integer> findMax(Tree<Integer> t) {
+    ArrayList<Tree<Integer>> findNode(Tree<Integer> t, int q, Tree<Integer> par, boolean side) {
+        if (t == null) {
+            return null;
+        }
+        ArrayList<Tree<Integer>> nodes = new ArrayList<>();
+        if (t.value == q) {
+            nodes.add(t);
+            nodes.add(par);
+            leftNode = side;
+        } else if (t.value < q) {
+            nodes = findNode(t.right, q, t, false);
+        } else {
+            nodes = findNode(t.left, q, t, true);
+        }
+        return nodes;
+    }
+
+    ArrayList<Tree<Integer>> findMax(Tree<Integer> t, Tree<Integer> par) {
+        Tree<Integer> p = par;
         while (t.right != null) {
+            p = t;
             t = t.right;
         }
-        return t;
+        ArrayList<Tree<Integer>> arr = new ArrayList<Tree<Integer>>();
+        arr.add(t);
+        arr.add(p);
+        return arr;
     }
 }

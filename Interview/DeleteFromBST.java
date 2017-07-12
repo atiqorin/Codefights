@@ -41,7 +41,7 @@ class DeleteFromBST {
         } else {
             ArrayList<Tree<Integer>> arr = findMax(nodes.get(0).left, nodes.get(0));
             if (arr.get(1).value != nodes.get(0).value) {
-                arr.get(1).right = null;
+                arr.get(1).right = arr.get(0).left;
             } else {
                 arr.get(1).left = arr.get(0).left;
             }

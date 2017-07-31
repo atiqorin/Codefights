@@ -1,6 +1,6 @@
 class NearestGreater {
     int[] nearestGreater(int[] a) {
-        int[] st = new int[3 * a.length];
+        int[] st = new int[4 * a.length];
         constructRMQ(a, st);
         int[] ans = new int[a.length];
         for (int i = 0; i < a.length; i++) {
@@ -9,11 +9,27 @@ class NearestGreater {
                 left = -1;
             }
             int l = left;
-            while (l != -1) {
-                l = RMQ(a, st, l + 1, i - 1);
-                if (l != -1 && a[l] > a[i]) {
-                    left = l;
+            while (l != -1 && a[l] > a[i]) {
+                int t = l;
+                l = RMQ(a, st, (l + 1 + i) / 2, i - 1);
+                if (l != -1) {
+                    if (a[l] > a[i]) {
+                        left = l;
+                    } else {
+                        l = -1;
+                    }
                 }
+                if (l == -1) {
+                    l = RMQ(a, st, t + 1, (t + 1 + i) / 2 - 1);
+                    if (l != -1) {
+                        if (a[l] > a[i]) {
+                            left = l;
+                        } else {
+                            l = -1;
+                        }
+                    }
+                }
+
             }
 
             int right = RMQ(a, st, i + 1, a.length - 1);
@@ -22,9 +38,25 @@ class NearestGreater {
             }
             int r = right;
             while (r != -1) {
-                r = RMQ(a, st, i + 1, r - 1);
-                if (r != -1 && a[r] > a[i]) {
-                    right = r;
+                int t = r;
+                r = RMQ(a, st, i + 1, (i + r) / 2);
+
+                if (r != -1) {
+                    if (a[r] > a[i]) {
+                        right = r;
+                    } else {
+                        r = -1;
+                    }
+                }
+                if (r == -1) {
+                    r = RMQ(a, st, (i + t) / 2 + 1, t - 1);
+                    if (r != -1) {
+                        if (a[r] > a[i]) {
+                            right = r;
+                        } else {
+                            r = -1;
+                        }
+                    }
                 }
             }
             if (left == -1 && right == -1) {

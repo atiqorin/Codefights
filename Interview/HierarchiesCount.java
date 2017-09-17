@@ -19,59 +19,69 @@ class HierarchiesCount {
             }
         }
         
-        return (n * det(cof, n - 1))%MODULO;
+        int k = (n * det(cof, n - 1))%MODULO;
+        if(k < 0){
+            k += MODULO;
+            k %= MODULO;
+        }
+        return k;
     }
     int det(long[][] mat, int n){
-        Fraction[][] _mat = new Fraction[n][n];
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j < n; j++){
-                _mat[i][j] = new Fraction(mat[i][j], 1L);
-            }
-        }
+        ArrayList<Long> left = new ArrayList<>();
         for(int i = 1; i < n; i++){
             for(int j = i; j < n; j++){
-                if(_mat[i-1][i-1].Num == 0){
+                if(mat[j][i-1] == 0 || mat[i-1][i-1] == 0){
                     continue;
                 }
-                Fraction divisor = Divide(_mat[j][i-1],_mat[i-1][i-1]);
-                for(int k = 0; k < n; k++){
-                    _mat[j][k] = Minus(_mat[j][k], Mult(_mat[i-1][k], divisor));
+                long _lcm = lcm(mat[i-1][i-1], mat[j][i-1]);
+                long rowMult = (_lcm / mat[j][i-1])%MODULO;
+                long subMult = (_lcm / mat[i-1][i-1])%MODULO;
+                left.add((_lcm / mat[j][i-1])%MODULO);
+                for(int k = i - 1; k < n; k++){
+                    mat[j][k] = (mat[j][k]*rowMult)%MODULO - (mat[i-1][k]*subMult)%MODULO;
                 }
             }
         }
-        Fraction ans = new Fraction(_mat[0][0].Num,_mat[0][0].Den);
-        for(int i = 1; i < n; i++){
-            ans = Mult(ans, _mat[i][i]);
+        long ans = 1;
+        for(int i = 0; i < n; i++){
+            ans = (ans * mat[i][i]) % MODULO;
         }
-        return (int)(ans.Num % MODULO);
+        for(long l: left){
+            if(l < 0){
+                l += MODULO;
+                l %= MODULO;
+            }
+            ans = (ans * modInverse(l, MODULO)) % MODULO;
+        }
+        if(ans < 0){
+            ans += MODULO;
+            ans %= MODULO;
+        }
+        return (int)ans;
     }
-    Fraction Minus(Fraction a, Fraction b){
-        if(a.Num == 0){
-            return new Fraction(-b.Num, b.Den);
+    long modInverse(long a, long m){
+        long _m = m;
+        long temp;
+        long q;
+        long x = 0;
+        long y = 1;
+        while(a > 1){
+            temp = m;
+            q = a / m;
+            m = a % m;
+            a = temp;
+            temp = x;
+            x = y - q * x;
+            y = temp;
         }
-        if(b.Num == 0){
-            return new Fraction(a.Num, a.Den);
+        if(y < 0){
+            y += _m;
         }
-        long Den = a.Den / gcd(a.Den, b.Den) * b.Den;
-        long Num = a.Num * Den / a.Den - b.Num * Den / b.Den;
-        return new Fraction(Num, Den);
+        return y;
     }
-    Fraction Mult(Fraction a, Fraction b){
-        if(a.Num == 0 || b.Num == 0){
-            return new Fraction(0L,1L);
-        }
-        long _gcd = gcd(a.Num, b.Den);
-        long _aNum = a.Num / _gcd;
-        long _bDen = b.Den / _gcd;
-        
-        _gcd = gcd(a.Den, b.Num);
-        long _aDen = a.Den / _gcd;
-        long _bNum = b.Num / _gcd;
-        return new Fraction(_aNum * _bNum, _aDen * _bDen);
-    }
-    Fraction Divide(Fraction a, Fraction b){
-        Fraction _inverseB = new Fraction(b.Den, b.Num);
-        return Mult(a, _inverseB);
+    long lcm(long a, long b){
+        long m = (a / gcd(a, b))* b;
+        return m;
     }
     long gcd(long a, long b){
         if(a == 0 || b == 0){
@@ -79,16 +89,5 @@ class HierarchiesCount {
         }
         return gcd(b, a%b);
     }
-    class Fraction {
-        public long Num;
-        public long Den;
-        public Fraction(long Num, long Den){
-            long _gcd = 1L;
-            if(Den != 1){
-                _gcd = gcd(Num, Den);
-            }
-            this.Num = Num/_gcd;
-            this.Den = Den/_gcd;
-        }
-    }
+     
 }

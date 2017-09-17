@@ -10,12 +10,8 @@ def hierarchiesCount(n, respectList):
         mat[v[1]][v[0]] = -1
         mat[v[0]][v[0]] += 1
         mat[v[1]][v[1]] += 1
-    cof = [[0 for x in range(n - 1)] for y in range(n - 1)]
-    for i in range(1, n):
-        for j in range(1, n):
-            cof[i - 1][j - 1] = mat[i][j]
-
-    return (n * det(cof, n - 1)) % MODULO
+    
+    return (n * det(mat, n - 1)) % MODULO
 
 
 def gcd(a, b):
@@ -23,9 +19,23 @@ def gcd(a, b):
         return a + b
     return gcd(b, a % b)
 
-
-def lcm(a, b):
-    return a * b / gcd(a, b)
+def modInverse(a, m):
+    _m = m
+    temp=0
+    q=0
+    x = 0
+    y = 1
+    while (a > 1):
+        temp = m
+        q = a // m
+        m = a % m
+        a = temp
+        temp = x
+        x = y - q * x
+        y = temp
+    if (y < 0):
+        y += _m
+    return y;
 
 
 def det(mat, n):
@@ -34,18 +44,20 @@ def det(mat, n):
         for j in range(i, n):
             if(mat[j][i - 1] == 0 or mat[i - 1][i - 1] == 0):
                 continue
-            _lcm = lcm(mat[i - 1][i - 1], mat[j][i - 1])
-            rowMult = _lcm / mat[j][i - 1]
-            subMult = _lcm / mat[i - 1][i - 1]
+            _gcd = gcd(mat[i - 1][i - 1], mat[j][i - 1])
+            rowMult = (mat[i - 1][i - 1] * modInverse(_gcd, MODULO))%MODULO
+            subMult = (mat[j][i - 1] * modInverse(_gcd, MODULO))%MODULO
             left.insert(0, rowMult)
-            for k in range(i - 1, n):
-                mat[j][k] = (mat[j][k] * rowMult) - (mat[i - 1][k] * subMult)
+            for k in range(i, n):
+                mat[j][k] = ((mat[j][k] * rowMult)%MODULO - (mat[i - 1][k] * subMult)%MODULO)%MODULO
 
     ans = 1
     for i in range(n):
-        ans = ans * mat[i][i]
+        ans = (ans * mat[i][i])%MODULO
     for l in left:
-        ans = ans / l
+        if(l == 0):
+            continue
+        ans = ans * modInverse(l, MODULO)
     ans %= MODULO
     if(ans < 0):
         ans += MODULO

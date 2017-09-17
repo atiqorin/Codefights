@@ -32,7 +32,7 @@ def det(mat, n):
     left = []
     for i in range(1, n):
         for j in range(i, n):
-            if(mat[i][j - 1] == 0 or mat[i - 1][i - 1] == 0):
+            if(mat[j][i - 1] == 0 or mat[i - 1][i - 1] == 0):
                 continue
             _lcm = lcm(mat[i - 1][i - 1], mat[j][i - 1])
             rowMult = _lcm / mat[j][i - 1]
